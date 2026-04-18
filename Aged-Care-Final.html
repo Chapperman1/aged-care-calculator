@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>Aged Care Complete Cost Calculator | Chappo & DeepSeek</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #eef2f7;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .hero h1 {
+            font-size: 1.6rem;
+            color: #004b6e;
+        }
+        .hero .sub {
+            font-size: 0.8rem;
+            color: #2c6e9e;
+        }
+        .hero .credit {
+            font-size: 0.7rem;
+            color: #7e8c9e;
+            margin-top: 4px;
+        }
+
+        /* Summary Card */
+        .summary-card {
+            background: #004b6e;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .summary-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+        .summary-amount {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 8px 0;
+        }
+        .summary-breakdown {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+        }
+        .upfront-badge {
+            background: #ffb347;
+            color: #004b6e;
+            border-radius: 30px;
+            padding: 6px 12px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 12px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 24px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .card-header {
+            background: #f8fafc;
+            padding: 16px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #004b6e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid #e2edf2;
+        }
+        .card-header:active {
+            background: #eef2f5;
+        }
+        .card-content {
+            padding: 16px;
+        }
+        .card-content.closed {
+            display: none;
+        }
+
+        /* Form inputs */
+        .input-group {
+            margin-bottom: 18px;
+        }
+        .input-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1a4b6e;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .label-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .label-row label {
+            margin-bottom: 0;
+        }
+        .hint-icon {
+            background: #eef2f5;
+            border-radius: 30px;
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #0077b6;
+            cursor: pointer;
+        }
+        .tooltip {
+            position: fixed;
+            background: #2c3e4e;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            max-width: 250px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .currency-input {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .currency-input span {
+            position: absolute;
+            left: 14px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #2c3e4e;
+        }
+        .currency-input input, .input-group select {
+            width: 100%;
+            padding: 14px 14px 14px 30px;
+            border: 1px solid #cbd5e1;
+            border-radius: 60px;
+            font-size: 1rem;
+            background: white;
+        }
+        .input-group select {
+            padding: 14px;
+        }
+        .hint {
+            font-size: 0.7rem;
+            color: #6c8eae;
+            margin-top: 4px;
+            margin-left: 8px;
+        }
+        .info-hint {
+            font-size: 0.7rem;
+            color: #2c6e9e;
+            margin-top: 4px;
+            margin-left: 8px;
+        }
+
+        /* Radio group */
+        .radio-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .radio-option input {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Button */
+        .calc-btn {
+            background: #0077b6;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            margin: 8px 0 8px;
+        }
+        .calc-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Detailed Breakdown */
+        .breakdown-toggle {
+            background: #eef2f5;
+            padding: 12px;
+            border-radius: 60px;
+            text-align: center;
+            font-weight: 600;
+            margin-top: 16px;
+            cursor: pointer;
+        }
+        .breakdown-detail {
+            background: white;
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 12px;
+            font-size: 0.8rem;
+            display: none;
+        }
+        .breakdown-detail.show {
+            display: block;
+        }
+        .formula-step {
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 16px;
+            margin: 8px 0;
+            font-family: monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+        }
+
+        /* Constants Panel */
+        .constants-panel {
+            background: #f8fafc;
+            border-radius: 24px;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .constants-header {
+            background: #eef2f5;
+            padding: 14px 16px;
+            font-weight: 700;
+            color: #004b6e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .constants-grid {
+            padding: 16px;
+        }
+        .constants-grid.closed {
+            display: none;
+        }
+        .const-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .const-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #2c3e4e;
+        }
+        .const-value {
+            font-family: monospace;
+            font-weight: 600;
+            color: #1e6f3f;
+            background: #fff4e0;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .footer, .official-link, .about {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #7e8c9e;
+            margin-top: 16px;
+        }
+        .official-link a {
+            color: #0077b6;
+            text-decoration: none;
+        }
+        .about {
+            margin-top: 20px;
+            padding-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="hero">
+        <h1>🏡 Aged Care Complete</h1>
+        <div class="sub">Care + Accommodation Cost Calculator</div>
+        <div class="credit">Chappo & DeepSeek</div>
+    </div>
+
+    <!-- SUMMARY CARD -->
+    <div class="summary-card" id="summaryCard" style="display: none;">
+        <div class="summary-label" id="summaryLabel">TOTAL COST PER DAY</div>
+        <div class="summary-amount" id="summaryAmount">$0.00</div>
+        <div class="summary-breakdown" id="summaryBreakdown"></div>
+        <div id="upfrontDisplay"></div>
+    </div>
+
+    <!-- SECTION 1: Your Situation -->
+    <div class="card">
+        <div class="card-header" id="header1">
+            <span>👤 1. Your Situation</span>
+            <span id="icon1">▶</span>
+        </div>
+        <div class="card-content closed" id="content1">
+            <div class="input-group">
+                <label>Status</label>
+                <select id="status">
+                    <option value="single">Single / widowed</option>
+                    <option value="couple">Couple (one in care)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <div class="label-row">
+                    <label>Home ownership</label>
+                    <span class="hint-icon" id="homeHint">ℹ️</span>
+                </div>
+                <select id="homeowner">
+                    <option value="homeowner">Homeowner</option>
+                    <option value="nonhomeowner">Non-homeowner</option>
+                </select>
+                <div class="hint">Principal home counted in assets unless exempt</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: Income -->
+    <div class="card">
+        <div class="card-header" id="header2">
+            <span>💰 2. Income</span>
+            <span id="icon2">▶</span>
+        </div>
+        <div class="card-content closed" id="content2">
+            <div class="input-group">
+                <label>Age Pension (annual)</label>
+                <div class="currency-input"><span>$</span><input type="number" id="pension" value="28600"></div>
+                <div class="hint">Basic Daily Fee = 85% of single pension rate</div>
+            </div>
+            <div class="input-group">
+                <label>Other actual income (annual)</label>
+                <div class="currency-input"><span>$</span><input type="number" id="otherIncome" value="0"></div>
+                <div class="hint">Wages, rental income, super drawdowns</div>
+            </div>
+            <div class="input-group">
+                <div class="label-row">
+                    <label>Financial assets (deemed to earn income)</label>
+                    <span class="hint-icon" id="deemingHint">ℹ️</span>
+                </div>
+                <div class="currency-input"><span>$</span><input type="number" id="financialAssets" value="100000"></div>
+                <div class="info-hint">💡 Savings, term deposits, shares — deemed at government rates</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3: Other Assets (cars, boats, property) -->
+    <div class="card">
+        <div class="card-header" id="header3">
+            <span>🚗 3. Other Assets (cars, boats, property)</span>
+            <span id="icon3">▶</span>
+        </div>
+        <div class="card-content closed" id="content3">
+            <div class="input-group">
+                <div class="label-row">
+                    <label>Other assets value</label>
+                    <span class="hint-icon" id="otherAssetsHint">ℹ️</span>
+                </div>
+                <div class="currency-input"><span>$</span><input type="number" id="otherAssets" value="0"></div>
+                <div class="hint">Excludes principal home, personal effects, RAD</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 4: Accommodation Plan -->
+    <div class="card">
+        <div class="card-header" id="header4">
+            <span>🏠 4. Accommodation Plan</span>
+            <span id="icon4">▶</span>
+        </div>
+        <div class="card-content closed" id="content4">
+            <div class="input-group">
+                <label>Room RAD value (facility price)</label>
+                <div class="currency-input"><span>$</span><input type="number" id="roomRADValue" value="550000"></div>
+                <div class="hint">The published RAD (Refundable Accommodation Deposit) for the room</div>
+            </div>
+            <div class="radio-group" id="paymentMethodGroup">
+                <label class="radio-option"><input type="radio" name="paymentMethod" value="rad" checked> RAD only (lump sum)</label>
+                <label class="radio-option"><input type="radio" name="paymentMethod" value="dap"> DAP only (pay daily)</label>
+                <label class="radio-option"><input type="radio" name="paymentMethod" value="combo"> Combination (part RAD + DAP)</label>
+            </div>
+            <div class="input-group" id="radPaidGroup" style="display: none;">
+                <label>RAD you will pay (lump sum)</label>
+                <div class="currency-input"><span>$</span><input type="number" id="radPaidCombo" value="200000"></div>
+                <div class="hint">Remainder paid as daily DAP</div>
+                <div class="info-hint">💡 This RAD amount is also counted in your assets</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="calc-btn" id="calcBtn">🧮 Calculate & Summarise</button>
+
+    <!-- Detailed Breakdown -->
+    <div class="breakdown-toggle" id="breakdownToggle">📋 Show Full Calculation Breakdown ▼</div>
+    <div class="breakdown-detail" id="breakdownDetail"></div>
+
+    <!-- Constants Panel -->
+    <div class="constants-panel">
+        <div class="constants-header" id="constantsHeader">
+            <span>📅 Schedule of Fees & Charges (tap to expand)</span>
+            <span id="constantsIcon">▶</span>
+        </div>
+        <div class="constants-grid closed" id="constantsGrid"></div>
+    </div>
+
+    <div class="official-link">
+        📖 <a href="https://www.health.gov.au/resources/publications/schedule-of-fees-and-charges-for-residential-care" target="_blank">Official government schedule</a>
+    </div>
+    <div class="footer">
+        Based on Aged Care Act 1997. MTCF = (ITA + ATA) - MASA.<br>
+        Basic Daily Fee = 85% of single Age Pension. MPIR = Maximum Permissible Interest Rate.
+    </div>
+    <div class="about">
+        ⚕️ By Chappo & DeepSeek — Tap any blue value to edit constants
+    </div>
+</div>
+
+<script>
+    // ========== SCHEDULE CONSTANTS ==========
+    let S = {
+        INCOME_FREE_AREA: 33717,
+        ASSET_FREE_AREA: 62412,
+        FIRST_ASSET_THRESHOLD: 201230,
+        SECOND_ASSET_THRESHOLD: 484694,
+        MASA: 70.94,
+        MAX_DAILY_MTCF: 341.24,
+        ANNUAL_CAP: 33717,
+        LIFETIME_CAP: 79942,
+        DEEMING_LOWER: 0.0025,
+        DEEMING_UPPER: 0.0225,
+        DEEMING_THRESHOLD: 62600,
+        SINGLE_PENSION_RATE: 78.58,
+        MPIR: 0.0836
+    };
+    const TIER1 = 0.175, TIER2 = 0.01, TIER3 = 0.02;
+    const DAYS = 364;
+
+    function fmt$(v) { return v.toLocaleString('en-AU', { style: 'currency', currency: 'AUD', minimumFractionDigits: 2 }); }
+    function fmtInt(v) { return v.toLocaleString('en-AU', { style: 'currency', currency: 'AUD', minimumFractionDigits: 0 }); }
+
+    function getBasicDailyFee() {
+        return S.SINGLE_PENSION_RATE * 0.85;
+    }
+
+    function getRADPaidForAssets() {
+        let paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        if (paymentMethod === 'rad') {
+            return parseFloat(document.getElementById('roomRADValue').value) || 0;
+        } else if (paymentMethod === 'combo') {
+            return parseFloat(document.getElementById('radPaidCombo').value) || 0;
+        }
+        return 0;
+    }
+
+    function getAccommodationCost() {
+        let roomValue = parseFloat(document.getElementById('roomRADValue').value) || 0;
+        let paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        
+        if (paymentMethod === 'rad') {
+            return { daily: 0, upfront: roomValue, description: "RAD only (lump sum)" };
+        } else if (paymentMethod === 'dap') {
+            let daily = (roomValue * S.MPIR) / DAYS;
+            return { daily: daily, upfront: 0, description: "DAP only" };
+        } else {
+            let radPaid = parseFloat(document.getElementById('radPaidCombo').value) || 0;
+            let remaining = Math.max(0, roomValue - radPaid);
+            let daily = (remaining * S.MPIR) / DAYS;
+            return { daily: daily, upfront: radPaid, description: `Combination: ${fmtInt(radPaid)} RAD + DAP on balance` };
+        }
+    }
+
+    function calcDeemed(fin) {
+        if (fin <= S.DEEMING_THRESHOLD) return fin * S.DEEMING_LOWER;
+        return (S.DEEMING_THRESHOLD * S.DEEMING_LOWER) + ((fin - S.DEEMING_THRESHOLD) * S.DEEMING_UPPER);
+    }
+
+    function calcAsset(total) {
+        if (total <= S.ASSET_FREE_AREA) return { yearly: 0, daily: 0, tiers: [] };
+        let yearly = 0, tiers = [];
+        let free = S.ASSET_FREE_AREA, first = S.FIRST_ASSET_THRESHOLD, second = S.SECOND_ASSET_THRESHOLD;
+        if (total <= first) {
+            yearly = (total - free) * TIER1;
+            tiers.push({ range: `${fmt$(free)} → ${fmt$(first)}`, rate: "17.5%", amount: yearly });
+        } else if (total <= second) {
+            let t1 = (first - free) * TIER1;
+            let t2 = (total - first) * TIER2;
+            yearly = t1 + t2;
+            tiers.push({ range: `${fmt$(free)} → ${fmt$(first)}`, rate: "17.5%", amount: t1 });
+            tiers.push({ range: `${fmt$(first)} → ${fmt$(total)}`, rate: "1.0%", amount: t2 });
+        } else {
+            let t1 = (first - free) * TIER1;
+            let t2 = (second - first) * TIER2;
+            let t3 = (total - second) * TIER3;
+            yearly = t1 + t2 + t3;
+            tiers.push({ range: `${fmt$(free)} → ${fmt$(first)}`, rate: "17.5%", amount: t1 });
+            tiers.push({ range: `${fmt$(first)} → ${fmt$(second)}`, rate: "1.0%", amount: t2 });
+            tiers.push({ range: `Above ${fmt$(second)}`, rate: "2.0%", amount: t3 });
+        }
+        return { yearly, daily: yearly / DAYS, tiers };
+    }
+
+    function calculate() {
+        let pension = parseFloat(document.getElementById('pension').value) || 0;
+        let otherIncome = parseFloat(document.getElementById('otherIncome').value) || 0;
+        let financialAssets = parseFloat(document.getElementById('financialAssets').value) || 0;
+        let otherAssets = parseFloat(document.getElementById('otherAssets').value) || 0;
+        let radPaidForAssets = getRADPaidForAssets();
+        
+        let totalAssets = financialAssets + otherAssets + radPaidForAssets;
+        let deemed = calcDeemed(financialAssets);
+        let totalIncome = pension + otherIncome + deemed;
+
+        let incomeTested = 0, incomeExcess = 0;
+        if (totalIncome > S.INCOME_FREE_AREA) {
+            incomeExcess = totalIncome - S.INCOME_FREE_AREA;
+            incomeTested = (incomeExcess * 0.5) / DAYS;
+        }
+        let assetRes = calcAsset(totalAssets);
+        let assetTested = assetRes.daily;
+        let mta = incomeTested + assetTested;
+        let raw = mta - S.MASA;
+        let dailyCap = S.ANNUAL_CAP / DAYS;
+        let mtcf = Math.max(0, Math.min(raw, S.MAX_DAILY_MTCF, dailyCap));
+        mtcf = Math.round(mtcf * 100) / 100;
+
+        let basicDailyFee = getBasicDailyFee();
+        let totalCareDaily = basicDailyFee + mtcf;
+        let accom = getAccommodationCost();
+        let totalDaily = totalCareDaily + accom.daily;
+        
+        let summaryCard = document.getElementById('summaryCard');
+        summaryCard.style.display = 'block';
+        document.getElementById('summaryAmount').innerHTML = fmt$(totalDaily) + ' <span style="font-size:0.9rem;">/day</span>';
+        document.getElementById('summaryBreakdown').innerHTML = `
+            <div class="summary-row"><span>Accommodation (${accom.description}):</span><span>${fmt$(accom.daily)}/day</span></div>
+            <div class="summary-row"><span>Basic Daily Fee:</span><span>${fmt$(basicDailyFee)}/day</span></div>
+            <div class="summary-row"><span>Means Tested Care Fee (MTCF):</span><span>${fmt$(mtcf)}/day</span></div>
+            <div class="summary-row" style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.2); font-weight:700;"><span>TOTAL:</span><span>${fmt$(totalDaily)}/day</span></div>
+            <div class="summary-row"><span>Annual total:</span><span>${fmt$(totalDaily * 365)}/year</span></div>
+        `;
+        document.getElementById('upfrontDisplay').innerHTML = accom.upfront > 0 ? `<div class="upfront-badge">🏠 Upfront RAD payment: ${fmtInt(accom.upfront)} (refundable)</div>` : '';
+        document.getElementById('summaryLabel').innerHTML = 'TOTAL COST PER DAY (Care + Accommodation)';
+
+        let tiersHtml = '';
+        for (let t of assetRes.tiers) if (t.amount > 0) tiersHtml += `<div>• ${t.range} at ${t.rate} = ${fmt$(t.amount)}/year</div>`;
+        document.getElementById('breakdownDetail').innerHTML = `
+            <strong>📌 Income Tested Amount</strong>
+            <div class="formula-step">Total Income = ${fmt$(totalIncome)}/yr<br>Free = ${fmt$(S.INCOME_FREE_AREA)}<br>Excess = ${fmt$(incomeExcess)}<br><strong>ITA = ${fmt$(incomeTested)}/day</strong></div>
+            <strong>🏦 Asset Tested Amount</strong>
+            <div class="formula-step">Assets = Financial (${fmtInt(financialAssets)}) + Other (${fmtInt(otherAssets)}) + RAD Paid (${fmtInt(radPaidForAssets)}) = ${fmtInt(totalAssets)}<br>Free = ${fmt$(S.ASSET_FREE_AREA)}<br>${tiersHtml || 'Below threshold'}<br><strong>ATA = ${fmt$(assetTested)}/day</strong></div>
+            <strong>📊 Means Tested Amount (MTA) = ITA + ATA = ${fmt$(mta)}/day</strong>
+            <strong>💰 MTCF = MTA - MASA (${fmt$(S.MASA)}) = ${fmt$(raw)}/day</strong>
+            After caps → <strong>${fmt$(mtcf)}/day</strong><br><br>
+            <strong>🏠 Basic Daily Fee = 85% of Single Pension (${fmt$(S.SINGLE_PENSION_RATE)}/day) = ${fmt$(basicDailyFee)}/day</strong>
+        `;
+    }
+
+    // Tooltip function
+    let activeTooltip = null;
+    function showTooltip(text, event) {
+        if (activeTooltip) activeTooltip.remove();
+        let tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        tooltip.textContent = text;
+        document.body.appendChild(tooltip);
+        let rect = event.target.getBoundingClientRect();
+        tooltip.style.top = (rect.bottom + 5) + 'px';
+        tooltip.style.left = (rect.left + (rect.width/2) - 100) + 'px';
+        activeTooltip = tooltip;
+        setTimeout(() => { if (activeTooltip) activeTooltip.remove(); activeTooltip = null; }, 3000);
+    }
+
+    function buildGrid() {
+        let container = document.getElementById('constantsGrid');
+        let items = {
+            INCOME_FREE_AREA: 'Income Free Area (MTCF)',
+            ASSET_FREE_AREA: 'Asset Free Area',
+            FIRST_ASSET_THRESHOLD: 'First Asset Threshold',
+            SECOND_ASSET_THRESHOLD: 'Second Asset Threshold',
+            MASA: 'MASA (MTCF formula)',
+            MAX_DAILY_MTCF: 'Daily MTCF Cap',
+            ANNUAL_CAP: 'Annual MTCF Cap',
+            LIFETIME_CAP: 'Lifetime MTCF Cap',
+            DEEMING_LOWER: 'Deeming Rate (lower)',
+            DEEMING_UPPER: 'Deeming Rate (upper)',
+            DEEMING_THRESHOLD: 'Deeming Threshold',
+            SINGLE_PENSION_RATE: 'Single Pension Rate (daily)',
+            MPIR: 'MPIR (Max Permissible Interest Rate)'
+        };
+        container.innerHTML = '';
+        for (let [key, label] of Object.entries(items)) {
+            let val = S[key];
+            let display;
+            if (key.includes('RATE') && key !== 'SINGLE_PENSION_RATE') {
+                display = (val * 100).toFixed(2) + '%';
+            } else if (key === 'SINGLE_PENSION_RATE') {
+                display = fmt$(val) + '/day';
+            } else {
+                display = fmt$(val).replace('/year', '').replace('/day', '');
+            }
+            let div = document.createElement('div');
+            div.className = 'const-item';
+            div.innerHTML = `<span class="const-label">${label}</span><span class="const-value" data-key="${key}" data-mult="${(key.includes('RATE') && key !== 'SINGLE_PENSION_RATE') ? '100' : '1'}">${display}</span>`;
+            container.appendChild(div);
+        }
+        document.querySelectorAll('.const-value').forEach(el => {
+            el.addEventListener('click', function(e) {
+                e.stopPropagation();
+                let key = this.dataset.key;
+                let mult = parseInt(this.dataset.mult) || 1;
+                let current = S[key];
+                let promptVal = mult === 100 ? current * 100 : current;
+                let newVal = prompt(`Edit ${key.replace(/_/g, ' ')}:`, promptVal);
+                if (newVal !== null && !isNaN(parseFloat(newVal))) {
+                    let parsed = parseFloat(newVal);
+                    if (mult === 100) parsed = parsed / 100;
+                    S[key] = parsed;
+                    buildGrid();
+                    calculate();
+                }
+            });
+        });
+    }
+
+    function setupCollapsible(headerId, contentId, iconId) {
+        let header = document.getElementById(headerId);
+        let content = document.getElementById(contentId);
+        let icon = document.getElementById(iconId);
+        if (header && content && icon) {
+            header.addEventListener('click', function() {
+                content.classList.toggle('closed');
+                icon.textContent = content.classList.contains('closed') ? '▶' : '▼';
+            });
+        }
+    }
+
+    setupCollapsible('header1', 'content1', 'icon1');
+    setupCollapsible('header2', 'content2', 'icon2');
+    setupCollapsible('header3', 'content3', 'icon3');
+    setupCollapsible('header4', 'content4', 'icon4');
+
+    let constantsHeader = document.getElementById('constantsHeader');
+    let constantsGrid = document.getElementById('constantsGrid');
+    let constantsIcon = document.getElementById('constantsIcon');
+    constantsHeader.addEventListener('click', function() {
+        constantsGrid.classList.toggle('closed');
+        constantsIcon.textContent = constantsGrid.classList.contains('closed') ? '▶' : '▼';
+    });
+
+    let breakdownToggle = document.getElementById('breakdownToggle');
+    let breakdownDetail = document.getElementById('breakdownDetail');
+    breakdownToggle.addEventListener('click', function() {
+        breakdownDetail.classList.toggle('show');
+        breakdownToggle.textContent = breakdownDetail.classList.contains('show') ? '📋 Hide Calculation Breakdown ▲' : '📋 Show Full Calculation Breakdown ▼';
+    });
+
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            let radPaidGroup = document.getElementById('radPaidGroup');
+            radPaidGroup.style.display = this.value === 'combo' ? 'block' : 'none';
+            calculate();
+        });
+    });
+    document.getElementById('radPaidCombo').addEventListener('input', calculate);
+    document.getElementById('calcBtn').addEventListener('click', calculate);
+    
+    let inputs = ['pension', 'otherIncome', 'financialAssets', 'otherAssets', 'roomRADValue'];
+    inputs.forEach(id => { document.getElementById(id).addEventListener('input', calculate); });
+    document.getElementById('status').addEventListener('change', calculate);
+    document.getElementById('homeowner').addEventListener('change', calculate);
+
+    // Tooltips
+    document.getElementById('homeHint').addEventListener('click', (e) => showTooltip("Principal home is excluded from assets if a protected person lives there (spouse, dependent child, carer)", e));
+    document.getElementById('deemingHint').addEventListener('click', (e) => showTooltip("Financial assets are 'deemed' to earn income at government rates (0.25% up to $62,600, then 2.25%)", e));
+    document.getElementById('otherAssetsHint').addEventListener('click', (e) => showTooltip("Includes cars, boats, caravans, investment properties, collectables over ~$10,000. Excludes principal home, personal effects, and RAD.", e));
+
+    buildGrid();
+    calculate();
+</script>
+</body>
+</html>
